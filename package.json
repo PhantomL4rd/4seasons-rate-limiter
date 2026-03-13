@@ -1,0 +1,14 @@
+{
+  "name": "4season-rate-limiter",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260313.1",
+    "wrangler": "^4.72.0"
+  }
+}

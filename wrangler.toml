@@ -1,0 +1,12 @@
+name = "fourseason-rate-limiter"
+main = "src/worker.ts"
+compatibility_date = "2026-03-13"
+compatibility_flags = ["nodejs_compat"]
+
+[[durable_objects.bindings]]
+name = "IP_RATE_LIMITER"
+class_name = "IpRateLimiter"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["IpRateLimiter"]
