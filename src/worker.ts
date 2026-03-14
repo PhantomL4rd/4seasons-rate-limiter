@@ -5,7 +5,7 @@ interface RateState {
   count: number;
 }
 
-const DAILY_LIMIT = 3;
+const DAILY_LIMIT = 5;
 
 export class IpRateLimiter extends DurableObject {
   async fetch(request: Request): Promise<Response> {
