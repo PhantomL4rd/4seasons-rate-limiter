@@ -1,51 +1,89 @@
 import { DurableObject } from 'cloudflare:workers';
 
 interface RateState {
-  date: string;
-  count: number;
+	date: string;
+	count: number;
 }
 
-const DAILY_LIMIT = 3;
+const DEFAULT_LIMIT = 3;
+
+function parseLimit(raw: unknown): number | null {
+	if (
+		typeof raw === 'number' &&
+		Number.isInteger(raw) &&
+		raw >= 1 &&
+		raw <= 100
+	) {
+		return raw;
+	}
+	return null;
+}
 
 export class IpRateLimiter extends DurableObject {
-  async fetch(request: Request): Promise<Response> {
-    const url = new URL(request.url);
+	async fetch(request: Request): Promise<Response> {
+		const url = new URL(request.url);
 
-    if (request.method !== 'POST' || url.pathname !== '/consume') {
-      return new Response('Not found', { status: 404 });
-    }
+		if (request.method !== 'POST' || url.pathname !== '/consume') {
+			return new Response('Not found', { status: 404 });
+		}
 
-    const today = new Date().toISOString().slice(0, 10);
-    let state = (await this.ctx.storage.get<RateState>('state')) ?? {
-      date: today,
-      count: 0,
-    };
+		// リクエストボディから limit を取得（必須、1〜100の整数）
+		let limit: number;
+		try {
+			const text = await request.text();
+			if (!text) {
+				return Response.json(
+					{ error: 'limit is required (1-100)' },
+					{ status: 400 },
+				);
+			}
+			const body = JSON.parse(text);
+			const parsed = body && typeof body === 'object' ? parseLimit(body.limit) : null;
+			if (parsed === null) {
+				return Response.json(
+					{ error: 'limit is required (1-100)' },
+					{ status: 400 },
+				);
+			}
+			limit = parsed;
+		} catch {
+			return Response.json(
+				{ error: 'limit is required (1-100)' },
+				{ status: 400 },
+			);
+		}
 
-    // 日付が変わったらリセット
-    if (state.date !== today) {
-      state = { date: today, count: 0 };
-    }
+		const today = new Date().toISOString().slice(0, 10);
+		let state = (await this.ctx.storage.get<RateState>('state')) ?? {
+			date: today,
+			count: 0,
+		};
 
-    if (state.count >= DAILY_LIMIT) {
-      return Response.json(
-        { allowed: false, remaining: 0, limit: DAILY_LIMIT },
-        { status: 429 }
-      );
-    }
+		// 日付が変わったらリセット
+		if (state.date !== today) {
+			state = { date: today, count: 0 };
+		}
 
-    state.count += 1;
-    await this.ctx.storage.put('state', state);
+		if (state.count >= limit) {
+			return Response.json(
+				{ allowed: false, remaining: 0, limit },
+				{ status: 429 },
+			);
+		}
 
-    return Response.json({
-      allowed: true,
-      remaining: DAILY_LIMIT - state.count,
-      limit: DAILY_LIMIT,
-    });
-  }
+		state.count += 1;
+		await this.ctx.storage.put('state', state);
+
+		return Response.json({
+			allowed: true,
+			remaining: limit - state.count,
+			limit,
+		});
+	}
 }
 
 export default {
-  async fetch(): Promise<Response> {
-    return new Response('fourseason-rate-limiter worker');
-  },
+	async fetch(): Promise<Response> {
+		return new Response('fourseason-rate-limiter worker');
+	},
 } satisfies ExportedHandler;
