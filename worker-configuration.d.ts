@@ -4,10 +4,10 @@
 declare namespace Cloudflare {
 	interface GlobalProps {
 		mainModule: typeof import("./src/worker");
-		durableNamespaces: "IpRateLimiter";
+		durableNamespaces: "RateLimiter";
 	}
 	interface Env {
-		IP_RATE_LIMITER: DurableObjectNamespace<import("./src/worker").IpRateLimiter>;
+		RATE_LIMITER: DurableObjectNamespace<import("./src/worker").RateLimiter>;
 	}
 }
 interface Env extends Cloudflare.Env {}

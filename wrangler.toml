@@ -4,9 +4,14 @@ compatibility_date = "2026-03-13"
 compatibility_flags = ["nodejs_compat"]
 
 [[durable_objects.bindings]]
-name = "IP_RATE_LIMITER"
-class_name = "IpRateLimiter"
+name = "RATE_LIMITER"
+class_name = "RateLimiter"
 
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["IpRateLimiter"]
+
+[[migrations]]
+tag = "v2"
+deleted_classes = ["IpRateLimiter"]
+new_sqlite_classes = ["RateLimiter"]

@@ -19,7 +19,7 @@ function parseLimit(raw: unknown): number | null {
 	return null;
 }
 
-export class IpRateLimiter extends DurableObject {
+export class RateLimiter extends DurableObject {
 	async fetch(request: Request): Promise<Response> {
 		const url = new URL(request.url);
 
@@ -84,6 +84,6 @@ export class IpRateLimiter extends DurableObject {
 
 export default {
 	async fetch(): Promise<Response> {
-		return new Response('fourseason-rate-limiter worker');
+		return new Response('rate-limiter worker');
 	},
 } satisfies ExportedHandler;

@@ -2,8 +2,8 @@ import { env } from 'cloudflare:test';
 import { describe, it, expect } from 'vitest';
 
 function getStub() {
-	const id = env.IP_RATE_LIMITER.newUniqueId();
-	return env.IP_RATE_LIMITER.get(id);
+	const id = env.RATE_LIMITER.newUniqueId();
+	return env.RATE_LIMITER.get(id);
 }
 
 async function consume(stub: DurableObjectStub, limit: number) {
