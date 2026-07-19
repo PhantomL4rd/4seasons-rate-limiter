@@ -14,3 +14,11 @@ new_sqlite_classes = ["IpRateLimiter"]
 [[migrations]]
 tag = "v2"
 renamed_classes = [{ from = "IpRateLimiter", to = "RateLimiter" }]
+
+[[migrations]]
+tag = "v3"
+deleted_classes = ["RateLimiter"]
+
+[[migrations]]
+tag = "v4"
+new_sqlite_classes = ["RateLimiter"]
